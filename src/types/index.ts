@@ -41,14 +41,10 @@ export interface Category {
   createdAt: Date;
 }
 
-export type CakeCategory = 
-  | 'cheesecakes' 
-  | 'chocolate' 
-  | 'red-velvet' 
-  | 'fruit' 
-  | 'custom';
+export type CakeCategory = string;
 
-export const CAKE_CATEGORIES: Record<CakeCategory, string> = {
+// Legacy categories for backward compatibility
+export const LEGACY_CAKE_CATEGORIES = {
   'cheesecakes': 'Cheesecakes',
   'chocolate': 'Chocolate',
   'red-velvet': 'Red Velvet',

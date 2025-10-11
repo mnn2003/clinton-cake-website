@@ -32,7 +32,9 @@ export const useCategories = () => {
   };
 
   const getCategoryByKey = (key: string): Category | undefined => {
-    return state.categories.find(category => category.key === key && category.active);
+    const category = state.categories.find(category => category.key === key && category.active);
+    console.log('Looking for category with key:', key, 'Found:', category);
+    return category;
   };
 
   const getCategoriesAsRecord = (): Record<string, string> => {

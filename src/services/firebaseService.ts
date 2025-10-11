@@ -22,25 +22,31 @@ import { Cake, Enquiry, SlideshowImage, CakeCategory, Category, UserProfile, Ord
 
 // Cake services
 export const getCakes = async (): Promise<Cake[]> => {
+  console.log('Fetching all cakes...');
   const querySnapshot = await getDocs(collection(db, 'cakes'));
-  return querySnapshot.docs.map(doc => ({
+  const cakes = querySnapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data(),
     createdAt: doc.data().createdAt?.toDate() || new Date(),
   })) as Cake[];
+  console.log('Found total cakes:', cakes.length);
+  return cakes;
 };
 
 export const getCakesByCategory = async (category: CakeCategory): Promise<Cake[]> => {
+  console.log('Fetching cakes for category:', category);
   const q = query(
     collection(db, 'cakes'),
     where('category', '==', category)
   );
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({
+  const cakes = querySnapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data(),
     createdAt: doc.data().createdAt?.toDate() || new Date(),
   })) as Cake[];
+  console.log('Found cakes:', cakes.length);
+  return cakes;
 };
 
 export const getCake = async (id: string): Promise<Cake | null> => {

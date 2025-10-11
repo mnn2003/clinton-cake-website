@@ -108,7 +108,8 @@ const HeroSlideshow: React.FC = () => {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="bg-orange-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors transform hover:scale-105 text-sm sm:text-base"
+            onClick={() => window.location.href = '/category/all'}
+            className="bg-orange-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors transform hover:scale-105 text-sm sm:text-base cursor-pointer"
           >
             Explore Our Cakes
           </motion.button>
