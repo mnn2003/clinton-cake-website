@@ -94,3 +94,4 @@ export interface Order {
   deliveryDate?: Date;
   notes?: string;
   paymentMethod: 'cash' | 'card' | 'online';
+}
