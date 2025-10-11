@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiChevronLeft, FiChevronRight, FiHeart, FiShare2 } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiHeart, FiShare2, FiShoppingCart } from 'react-icons/fi';
 import { getCake, getCakesByCategory } from '../services/firebaseService';
 import { Cake } from '../types';
 import { useCategories } from '../hooks/useCategories';
+import { useCart } from '../hooks/useCart';
 import CakeCard from '../components/common/CakeCard';
 import EnquiryForm from '../components/forms/EnquiryForm';
 import Modal from '../components/ui/Modal';
@@ -18,6 +19,9 @@ const CakeDetailPage: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showEnquiry, setShowEnquiry] = useState(false);
   const { getCategoryByKey } = useCategories();
+  const { addToCart } = useCart();
+  const [selectedSize, setSelectedSize] = useState('Medium');
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const fetchCake = async () => {
@@ -56,6 +60,30 @@ const CakeDetailPage: React.FC = () => {
         prev === 0 ? cake.images.length - 1 : prev - 1
       );
     }
+  };
+
+  const handleAddToCart = () => {
+    if (!cake) return;
+    
+    // Extract price from priceRange
+    const priceMatch = cake.priceRange.match(/₹(\d+)/);
+    const basePrice = priceMatch ? parseInt(priceMatch[1]) : 500;
+    
+    // Adjust price based on size
+    const sizeMultiplier = selectedSize === 'Small' ? 0.8 : selectedSize === 'Large' ? 1.3 : selectedSize === 'Extra Large' ? 1.6 : 1;
+    const price = Math.round(basePrice * sizeMultiplier);
+    
+    addToCart({
+      cakeId: cake.id,
+      cakeName: cake.name,
+      cakeImage: cake.images[currentImageIndex] || 'https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg',
+      price,
+      quantity,
+      size: selectedSize
+    });
+    
+    // Show success message or redirect to cart
+    alert('Added to cart successfully!');
   };
 
   if (loading) {
@@ -168,14 +196,67 @@ const CakeDetailPage: React.FC = () => {
               </p>
             </div>
 
+            {/* Size Selection */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">Select Size</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {['Small', 'Medium', 'Large', 'Extra Large'].map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`p-3 border rounded-lg text-sm font-medium transition-colors ${
+                      selectedSize === size
+                        ? 'border-orange-500 bg-orange-50 text-orange-600'
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quantity Selection */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">Quantity</h3>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50"
+                >
+                  -
+                </button>
+                <span className="text-xl font-semibold w-8 text-center">{quantity}</span>
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleAddToCart}
+                className="w-full bg-orange-600 text-white py-4 rounded-lg font-semibold hover:bg-orange-700 transition-colors flex items-center justify-center"
+              >
+                <FiShoppingCart className="mr-2" />
+                Add to Cart
+              </motion.button>
+              
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowEnquiry(true)}
-              className="w-full bg-orange-600 text-white py-4 rounded-lg font-semibold hover:bg-orange-700 transition-colors"
+              className="w-full border-2 border-orange-600 text-orange-600 py-4 rounded-lg font-semibold hover:bg-orange-50 transition-colors"
             >
               Enquire About This Cake
             </motion.button>
+            </div>
           </div>
         </div>
 

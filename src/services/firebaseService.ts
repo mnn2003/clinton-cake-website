@@ -18,7 +18,7 @@ import {
   deleteObject,
 } from 'firebase/storage';
 import { db, storage } from '../lib/firebase';
-import { Cake, Enquiry, SlideshowImage, CakeCategory, Category } from '../types';
+import { Cake, Enquiry, SlideshowImage, CakeCategory, Category, UserProfile, Order } from '../types';
 
 // Cake services
 export const getCakes = async (): Promise<Cake[]> => {
@@ -154,4 +154,66 @@ export const updateCategory = async (id: string, category: Partial<Category>): P
 
 export const deleteCategory = async (id: string): Promise<void> => {
   await deleteDoc(doc(db, 'categories', id));
-}
+};
+
+// User Profile services
+export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
+  const docSnap = await getDoc(doc(db, 'userProfiles', userId));
+  if (docSnap.exists()) {
+    return {
+      id: docSnap.id,
+      ...docSnap.data(),
+      createdAt: docSnap.data().createdAt?.toDate() || new Date(),
+    } as UserProfile;
+  }
+  return null;
+};
+
+export const createUserProfile = async (userId: string, profile: Omit<UserProfile, 'id'>): Promise<void> => {
+  await updateDoc(doc(db, 'userProfiles', userId), {
+    ...profile,
+    createdAt: new Date(),
+  });
+};
+
+export const updateUserProfile = async (userId: string, profile: Partial<UserProfile>): Promise<void> => {
+  await updateDoc(doc(db, 'userProfiles', userId), profile);
+};
+
+// Order services
+export const getOrders = async (): Promise<Order[]> => {
+  const q = query(collection(db, 'orders'), orderBy('orderDate', 'desc'));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    orderDate: doc.data().orderDate?.toDate() || new Date(),
+    deliveryDate: doc.data().deliveryDate?.toDate() || null,
+  })) as Order[];
+};
+
+export const getUserOrders = async (userId: string): Promise<Order[]> => {
+  const q = query(
+    collection(db, 'orders'),
+    where('userId', '==', userId),
+    orderBy('orderDate', 'desc')
+  );
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    orderDate: doc.data().orderDate?.toDate() || new Date(),
+    deliveryDate: doc.data().deliveryDate?.toDate() || null,
+  })) as Order[];
+};
+
+export const addOrder = async (order: Omit<Order, 'id'>): Promise<string> => {
+  const docRef = await addDoc(collection(db, 'orders'), {
+    ...order,
+    orderDate: new Date(),
+  });
+  return docRef.id;
+};
+
+export const updateOrder = async (id: string, order: Partial<Order>): Promise<void> => {
+  await updateDoc(doc(db, 'orders', id), order);

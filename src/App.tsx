@@ -14,6 +14,10 @@ import HomePage from './pages/HomePage';
 import CategoryPage from './pages/CategoryPage';
 import CakeDetailPage from './pages/CakeDetailPage';
 import ContactPage from './pages/ContactPage';
+import AboutPage from './pages/AboutPage';
+import CartPage from './pages/CartPage';
+import CheckoutPage from './pages/CheckoutPage';
+import OrderConfirmationPage from './pages/OrderConfirmationPage';
 
 // Admin Pages
 import AdminLogin from './pages/admin/AdminLogin';
@@ -53,6 +57,10 @@ function App() {
                     <Route path="/category/:category" element={<CategoryPage />} />
                     <Route path="/cake/:id" element={<CakeDetailPage />} />
                     <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
                   </Routes>
                 </main>
                 <Footer />

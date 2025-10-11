@@ -1,13 +1,17 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { FiMenu, FiX, FiShoppingCart, FiUser } from 'react-icons/fi';
 import { useCategories } from '../../hooks/useCategories';
+import { useCart } from '../../hooks/useCart';
+import { useAuth } from '../../hooks/useAuth';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const location = useLocation();
   const { activeCategories } = useCategories();
+  const { getCartItemCount } = useCart();
+  const { user } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -66,7 +70,51 @@ const Header: React.FC = () => {
             >
               Contact
             </Link>
+            
+            <Link
+              to="/about"
+              className={`transition-colors ${
+                isActive('/about') 
+                  ? 'text-orange-600 font-semibold' 
+                  : 'text-gray-700 hover:text-orange-600'
+              }`}
+            >
+              About
+            </Link>
           </nav>
+
+          {/* Cart and User Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            <Link
+              to="/cart"
+              className="relative p-2 text-gray-700 hover:text-orange-600 transition-colors"
+            >
+              <FiShoppingCart size={20} />
+              {getCartItemCount() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {getCartItemCount()}
+                </span>
+              )}
+            </Link>
+            
+            {user ? (
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                  <span className="text-orange-600 font-semibold text-sm">
+                    {user.email?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <Link
+                to="/admin/login"
+                className="flex items-center space-x-1 text-gray-700 hover:text-orange-600 transition-colors"
+              >
+                <FiUser size={16} />
+                <span>Login</span>
+              </Link>
+            )}
+          </div>
 
           {/* Mobile Menu Button */}
           <button
@@ -114,6 +162,49 @@ const Header: React.FC = () => {
               >
                 Contact
               </Link>
+              
+              <Link
+                to="/about"
+                className="text-gray-700 hover:text-orange-600"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                About
+              </Link>
+              
+              <div className="pt-4 border-t">
+                <Link
+                  to="/cart"
+                  className="flex items-center justify-between text-gray-700 hover:text-orange-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <span>Cart</span>
+                  {getCartItemCount() > 0 && (
+                    <span className="bg-orange-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {getCartItemCount()}
+                    </span>
+                  )}
+                </Link>
+                
+                {user ? (
+                  <div className="flex items-center space-x-2 mt-2">
+                    <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                      <span className="text-orange-600 font-semibold text-xs">
+                        {user.email?.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-600">{user.email}</span>
+                  </div>
+                ) : (
+                  <Link
+                    to="/admin/login"
+                    className="flex items-center space-x-2 text-gray-700 hover:text-orange-600 mt-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <FiUser size={16} />
+                    <span>Login</span>
+                  </Link>
+                )}
+              </div>
             </div>
           </motion.nav>
         )}

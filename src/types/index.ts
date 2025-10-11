@@ -55,3 +55,42 @@ export const CAKE_CATEGORIES: Record<CakeCategory, string> = {
   'fruit': 'Fruit',
   'custom': 'Custom'
 };
+
+export interface CartItem {
+  id: string;
+  cakeId: string;
+  cakeName: string;
+  cakeImage: string;
+  price: number;
+  quantity: number;
+  size: string;
+  customizations?: string;
+  addedAt: Date;
+}
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string;
+  phone?: string;
+  address?: string;
+  profilePicture?: string;
+  createdAt: Date;
+}
+
+export interface Order {
+  id: string;
+  userId?: string;
+  customerInfo: {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+  };
+  items: CartItem[];
+  totalAmount: number;
+  status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
+  orderDate: Date;
+  deliveryDate?: Date;
+  notes?: string;
+  paymentMethod: 'cash' | 'card' | 'online';

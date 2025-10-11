@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiHeart, FiStar } from 'react-icons/fi';
+import { FiHeart, FiStar, FiShoppingCart } from 'react-icons/fi';
 import { Cake } from '../../types';
 import { useCategories } from '../../hooks/useCategories';
+import { useCart } from '../../hooks/useCart';
 
 interface CakeCardProps {
   cake: Cake;
@@ -11,7 +12,26 @@ interface CakeCardProps {
 
 const CakeCard: React.FC<CakeCardProps> = ({ cake }) => {
   const { getCategoryByKey } = useCategories();
+  const { addToCart } = useCart();
   const category = getCategoryByKey(cake.category);
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Extract price from priceRange (assuming format like "₹500 - ₹800")
+    const priceMatch = cake.priceRange.match(/₹(\d+)/);
+    const price = priceMatch ? parseInt(priceMatch[1]) : 500;
+    
+    addToCart({
+      cakeId: cake.id,
+      cakeName: cake.name,
+      cakeImage: cake.images[0] || 'https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg',
+      price,
+      quantity: 1,
+      size: 'Medium'
+    });
+  };
 
   return (
     <Link to={`/cake/${cake.id}`} className="block group">
@@ -67,6 +87,13 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake }) => {
             <span className="text-orange-600 font-semibold group-hover:text-orange-700 transition-colors">
               View Details →
             </span>
+            
+            <button
+              onClick={handleAddToCart}
+              className="bg-orange-600 text-white p-2 rounded-full hover:bg-orange-700 transition-colors opacity-0 group-hover:opacity-100"
+            >
+              <FiShoppingCart size={16} />
+            </button>
           </div>
         </div>
       </motion.div>

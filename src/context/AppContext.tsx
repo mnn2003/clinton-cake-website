@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { Cake, Enquiry, SlideshowImage, Category } from '../types';
+import { Cake, Enquiry, SlideshowImage, Category, CartItem, UserProfile } from '../types';
 
 interface AppState {
   cakes: Cake[];
   enquiries: Enquiry[];
   slideshowImages: SlideshowImage[];
   categories: Category[];
+  cart: CartItem[];
+  userProfile: UserProfile | null;
   loading: boolean;
   user: any;
 }
@@ -23,6 +25,12 @@ type AppAction =
   | { type: 'ADD_CATEGORY'; payload: Category }
   | { type: 'UPDATE_CATEGORY'; payload: Category }
   | { type: 'DELETE_CATEGORY'; payload: string }
+  | { type: 'SET_CART'; payload: CartItem[] }
+  | { type: 'ADD_TO_CART'; payload: CartItem }
+  | { type: 'UPDATE_CART_ITEM'; payload: { id: string; quantity: number } }
+  | { type: 'REMOVE_FROM_CART'; payload: string }
+  | { type: 'CLEAR_CART' }
+  | { type: 'SET_USER_PROFILE'; payload: UserProfile | null }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_USER'; payload: any };
 
@@ -31,6 +39,8 @@ const initialState: AppState = {
   enquiries: [],
   slideshowImages: [],
   categories: [],
+  cart: [],
+  userProfile: null,
   loading: false,
   user: null,
 };
@@ -82,6 +92,28 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
         ...state,
         categories: state.categories.filter(category => category.id !== action.payload),
       };
+    case 'SET_CART':
+      return { ...state, cart: action.payload };
+    case 'ADD_TO_CART':
+      return { ...state, cart: [...state.cart, action.payload] };
+    case 'UPDATE_CART_ITEM':
+      return {
+        ...state,
+        cart: state.cart.map(item =>
+          item.id === action.payload.id 
+            ? { ...item, quantity: action.payload.quantity }
+            : item
+        ),
+      };
+    case 'REMOVE_FROM_CART':
+      return {
+        ...state,
+        cart: state.cart.filter(item => item.id !== action.payload),
+      };
+    case 'CLEAR_CART':
+      return { ...state, cart: [] };
+    case 'SET_USER_PROFILE':
+      return { ...state, userProfile: action.payload };
     case 'SET_LOADING':
       return { ...state, loading: action.payload };
     case 'SET_USER':
