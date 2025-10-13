@@ -23,6 +23,29 @@ const CakeDetailPage: React.FC = () => {
   const [selectedSize, setSelectedSize] = useState('Medium');
   const [quantity, setQuantity] = useState(1);
 
+  // Extract base price from priceRange with better logic
+  const extractBasePrice = (priceRange: string): number => {
+    // Remove currency symbols and extract numbers
+    const numbers = priceRange.match(/\d+/g);
+    if (numbers && numbers.length > 0) {
+      // If there's a range (e.g., "₹500 - ₹800"), take the first (minimum) price
+      return parseInt(numbers[0]);
+    }
+    // Fallback price
+    return 500;
+  };
+
+  // Calculate price based on size
+  const calculatePrice = (basePrice: number, size: string): number => {
+    const sizeMultipliers = {
+      'Small': 0.8,
+      'Medium': 1.0,
+      'Large': 1.3,
+      'Extra Large': 1.6
+    };
+    return Math.round(basePrice * (sizeMultipliers[size as keyof typeof sizeMultipliers] || 1.0));
+  };
+
   useEffect(() => {
     const fetchCake = async () => {
       if (!id) return;
@@ -65,13 +88,8 @@ const CakeDetailPage: React.FC = () => {
   const handleAddToCart = () => {
     if (!cake) return;
     
-    // Extract price from priceRange
-    const priceMatch = cake.priceRange.match(/₹(\d+)/);
-    const basePrice = priceMatch ? parseInt(priceMatch[1]) : 500;
-    
-    // Adjust price based on size
-    const sizeMultiplier = selectedSize === 'Small' ? 0.8 : selectedSize === 'Large' ? 1.3 : selectedSize === 'Extra Large' ? 1.6 : 1;
-    const price = Math.round(basePrice * sizeMultiplier);
+    const basePrice = extractBasePrice(cake.priceRange);
+    const price = calculatePrice(basePrice, selectedSize);
     
     addToCart({
       cakeId: cake.id,
@@ -199,7 +217,7 @@ const CakeDetailPage: React.FC = () => {
             {/* Size Selection */}
             <div>
               <h3 className="text-lg font-semibold text-gray-800 mb-3">Select Size</h3>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 mb-4">
                 {['Small', 'Medium', 'Large', 'Extra Large'].map((size) => (
                   <button
                     key={size}
@@ -210,9 +228,19 @@ const CakeDetailPage: React.FC = () => {
                         : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
-                    {size}
+                    <div className="text-center">
+                      <div className="font-semibold">{size}</div>
+                      <div className="text-xs text-gray-500">
+                        ₹{cake ? calculatePrice(extractBasePrice(cake.priceRange), size) : 500}
+                      </div>
+                    </div>
                   </button>
                 ))}
+              </div>
+              <div className="text-center text-sm text-gray-600">
+                Selected: <span className="font-semibold text-orange-600">
+                  {selectedSize} - ₹{cake ? calculatePrice(extractBasePrice(cake.priceRange), selectedSize) : 500}
+                </span>
               </div>
             </div>
 

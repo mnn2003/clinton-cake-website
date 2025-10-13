@@ -148,11 +148,14 @@ const CakeForm: React.FC<CakeFormProps> = ({
             type="text"
             {...register('priceRange', { required: 'Price range is required' })}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            placeholder="e.g., $25 - $45"
+            placeholder="e.g., ₹500 - ₹800 or ₹600"
           />
           {errors.priceRange && (
             <p className="text-red-500 text-sm mt-1">{errors.priceRange.message}</p>
           )}
+          <p className="text-xs text-gray-500 mt-1">
+            Enter price range (e.g., ₹500 - ₹800) or single price (e.g., ₹600). The first number will be used as base price.
+          </p>
         </div>
 
         <div>

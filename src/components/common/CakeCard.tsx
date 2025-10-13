@@ -15,13 +15,23 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake }) => {
   const { addToCart } = useCart();
   const category = getCategoryByKey(cake.category);
 
+  // Extract price from priceRange with better logic
+  const extractPrice = (priceRange: string): number => {
+    // Remove currency symbols and extract numbers
+    const numbers = priceRange.match(/\d+/g);
+    if (numbers && numbers.length > 0) {
+      // If there's a range (e.g., "₹500 - ₹800"), take the first (minimum) price
+      return parseInt(numbers[0]);
+    }
+    // Fallback price
+    return 500;
+  };
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Extract price from priceRange (assuming format like "₹500 - ₹800")
-    const priceMatch = cake.priceRange.match(/₹(\d+)/);
-    const price = priceMatch ? parseInt(priceMatch[1]) : 500;
+    const price = extractPrice(cake.priceRange);
     
     addToCart({
       cakeId: cake.id,
