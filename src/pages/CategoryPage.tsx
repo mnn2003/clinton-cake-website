@@ -14,6 +14,60 @@ const CategoryPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { getCategoryByKey, activeCategories } = useCategories();
 
+  // Sample cakes data for fallback
+  const sampleCakes: Cake[] = [
+    {
+      id: 'sample-1',
+      name: 'Classic Chocolate Cake',
+      description: 'Rich, moist chocolate cake with creamy chocolate frosting. Perfect for any celebration.',
+      category: 'chocolate',
+      priceRange: '₹800 - ₹1200',
+      images: ['https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg'],
+      featured: true,
+      createdAt: new Date()
+    },
+    {
+      id: 'sample-2',
+      name: 'Vanilla Dream Cake',
+      description: 'Light and fluffy vanilla sponge cake with vanilla buttercream frosting.',
+      category: 'vanilla',
+      priceRange: '₹700 - ₹1000',
+      images: ['https://images.pexels.com/photos/1721932/pexels-photo-1721932.jpeg'],
+      featured: false,
+      createdAt: new Date()
+    },
+    {
+      id: 'sample-3',
+      name: 'Fresh Strawberry Cake',
+      description: 'Delicious strawberry cake with fresh strawberries and whipped cream.',
+      category: 'fruit',
+      priceRange: '₹900 - ₹1300',
+      images: ['https://images.pexels.com/photos/1126359/pexels-photo-1126359.jpeg'],
+      featured: true,
+      createdAt: new Date()
+    },
+    {
+      id: 'sample-4',
+      name: 'Custom Birthday Cake',
+      description: 'Personalized birthday cake with custom decorations and your choice of flavors.',
+      category: 'custom',
+      priceRange: '₹1200 - ₹2000',
+      images: ['https://images.pexels.com/photos/1702373/pexels-photo-1702373.jpeg'],
+      featured: false,
+      createdAt: new Date()
+    },
+    {
+      id: 'sample-5',
+      name: 'Red Velvet Delight',
+      description: 'Classic red velvet cake with cream cheese frosting and elegant decoration.',
+      category: 'chocolate',
+      priceRange: '₹1000 - ₹1500',
+      images: ['https://images.pexels.com/photos/1055272/pexels-photo-1055272.jpeg'],
+      featured: true,
+      createdAt: new Date()
+    }
+  ];
+
   useEffect(() => {
     const fetchCakes = async () => {
       if (!category) {
@@ -31,28 +85,55 @@ const CategoryPage: React.FC = () => {
         
         if (category === 'all') {
           console.log('Fetching all cakes...');
-          fetchedCakes = await getCakes();
+          try {
+            fetchedCakes = await getCakes();
+            console.log('Fetched cakes from database:', fetchedCakes.length);
+          } catch (dbError) {
+            console.log('Database fetch failed, using sample data');
+            fetchedCakes = sampleCakes;
+          }
         } else {
           // Find the category in our active categories
           const categoryData = getCategoryByKey(category);
           console.log('Category data found:', categoryData);
           
-          if (categoryData) {
-            // Use the category key to fetch cakes
-            console.log('Fetching cakes for category key:', categoryData.key);
-            fetchedCakes = await getCakesByCategory(categoryData.key);
-          } else {
-            // Try direct fetch with the category parameter
-            console.log('Category not found in active categories, trying direct fetch with:', category);
-            fetchedCakes = await getCakesByCategory(category);
+          try {
+            if (categoryData) {
+              console.log('Fetching cakes for category key:', categoryData.key);
+              fetchedCakes = await getCakesByCategory(categoryData.key);
+            } else {
+              console.log('Category not found in active categories, trying direct fetch with:', category);
+              fetchedCakes = await getCakesByCategory(category);
+            }
+            console.log('Fetched cakes from database:', fetchedCakes.length);
+          } catch (dbError) {
+            console.log('Database fetch failed, using sample data for category:', category);
+            fetchedCakes = sampleCakes.filter(cake => cake.category === category);
           }
         }
         
-        console.log('Fetched cakes:', fetchedCakes.length);
+        // If no cakes found in database, use sample data
+        if (fetchedCakes.length === 0) {
+          console.log('No cakes found in database, using sample data');
+          if (category === 'all') {
+            fetchedCakes = sampleCakes;
+          } else {
+            fetchedCakes = sampleCakes.filter(cake => cake.category === category);
+          }
+        }
+        
+        console.log('Final cakes to display:', fetchedCakes.length);
         setCakes(fetchedCakes);
       } catch (error) {
         console.error('Error fetching cakes:', error);
-        setError('Failed to load cakes. Please try again.');
+        console.log('Using sample data due to error');
+        
+        // Use sample data as fallback
+        if (category === 'all') {
+          setCakes(sampleCakes);
+        } else {
+          setCakes(sampleCakes.filter(cake => cake.category === category));
+        }
       } finally {
         setLoading(false);
       }
@@ -71,8 +152,15 @@ const CategoryPage: React.FC = () => {
       return categoryData.name;
     }
     
-    // Fallback: format the category parameter
-    return category?.split('-').map(word => 
+    // Fallback category names
+    const fallbackNames: Record<string, string> = {
+      'chocolate': 'Chocolate Cakes',
+      'vanilla': 'Vanilla Cakes',
+      'fruit': 'Fruit Cakes',
+      'custom': 'Custom Cakes'
+    };
+    
+    return fallbackNames[category || ''] || category?.split('-').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ') || 'Unknown Category';
   };
@@ -163,6 +251,19 @@ const CategoryPage: React.FC = () => {
                 <CakeCard cake={cake} />
               </motion.div>
             ))}
+          </div>
+        )}
+
+        {/* Debug info - remove in production */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-8 p-4 bg-gray-100 rounded-lg">
+            <h3 className="font-semibold mb-2">Debug Info:</h3>
+            <p>Category Parameter: {category}</p>
+            <p>Category Name: {getCategoryName()}</p>
+            <p>Cakes Found: {cakes.length}</p>
+            <p>Active Categories: {activeCategories.length}</p>
+            <p>Loading: {loading.toString()}</p>
+            <p>Error: {error || 'None'}</p>
           </div>
         )}
       </div>

@@ -23,14 +23,20 @@ import { Cake, Enquiry, SlideshowImage, CakeCategory, Category, UserProfile, Ord
 // Cake services
 export const getCakes = async (): Promise<Cake[]> => {
   console.log('Fetching all cakes...');
-  const querySnapshot = await getDocs(collection(db, 'cakes'));
-  const cakes = querySnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data(),
-    createdAt: doc.data().createdAt?.toDate() || new Date(),
-  })) as Cake[];
-  console.log('Found total cakes:', cakes.length);
-  return cakes;
+  try {
+    const querySnapshot = await getDocs(collection(db, 'cakes'));
+    const cakes = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+    })) as Cake[];
+    console.log('Found total cakes:', cakes.length);
+    return cakes;
+  } catch (error) {
+    console.error('Error fetching all cakes:', error);
+    // Return empty array instead of throwing error
+    return [];
+  }
 };
 
 export const getCakesByCategory = async (category: CakeCategory): Promise<Cake[]> => {
@@ -41,12 +47,12 @@ export const getCakesByCategory = async (category: CakeCategory): Promise<Cake[]
     return [];
   }
   
-  const q = query(
-    collection(db, 'cakes'),
-    where('category', '==', category)
-  );
-  
   try {
+    const q = query(
+      collection(db, 'cakes'),
+      where('category', '==', category)
+    );
+    
     const querySnapshot = await getDocs(q);
     const cakes = querySnapshot.docs.map(doc => ({
       id: doc.id,
@@ -57,7 +63,8 @@ export const getCakesByCategory = async (category: CakeCategory): Promise<Cake[]
     return cakes;
   } catch (error) {
     console.error('Error fetching cakes by category:', error);
-    throw error;
+    // Return empty array instead of throwing error
+    return [];
   }
 };
 

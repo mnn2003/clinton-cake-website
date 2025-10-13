@@ -7,6 +7,52 @@ import LoadingSpinner from '../ui/LoadingSpinner';
 const CategoriesGrid: React.FC = () => {
   const { activeCategories, loading } = useCategories();
 
+  // Fallback categories if none exist in database
+  const fallbackCategories = [
+    {
+      id: 'fallback-1',
+      key: 'chocolate',
+      name: 'Chocolate Cakes',
+      description: 'Rich and decadent chocolate cakes for chocolate lovers',
+      imageUrl: 'https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg',
+      order: 0,
+      active: true,
+      createdAt: new Date()
+    },
+    {
+      id: 'fallback-2',
+      key: 'vanilla',
+      name: 'Vanilla Cakes',
+      description: 'Classic vanilla cakes with smooth and creamy flavors',
+      imageUrl: 'https://images.pexels.com/photos/1721932/pexels-photo-1721932.jpeg',
+      order: 1,
+      active: true,
+      createdAt: new Date()
+    },
+    {
+      id: 'fallback-3',
+      key: 'fruit',
+      name: 'Fruit Cakes',
+      description: 'Fresh and fruity cakes with seasonal fruits',
+      imageUrl: 'https://images.pexels.com/photos/1126359/pexels-photo-1126359.jpeg',
+      order: 2,
+      active: true,
+      createdAt: new Date()
+    },
+    {
+      id: 'fallback-4',
+      key: 'custom',
+      name: 'Custom Cakes',
+      description: 'Personalized cakes designed just for your special occasion',
+      imageUrl: 'https://images.pexels.com/photos/1702373/pexels-photo-1702373.jpeg',
+      order: 3,
+      active: true,
+      createdAt: new Date()
+    }
+  ];
+
+  const categoriesToShow = activeCategories.length > 0 ? activeCategories : fallbackCategories;
+
   if (loading) {
     return (
       <section className="py-16 bg-gray-50">
@@ -15,10 +61,6 @@ const CategoriesGrid: React.FC = () => {
         </div>
       </section>
     );
-  }
-
-  if (activeCategories.length === 0) {
-    return null;
   }
 
   return (
@@ -34,7 +76,7 @@ const CategoriesGrid: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {activeCategories.map((category, index) => (
+          {categoriesToShow.map((category, index) => (
             <motion.div
               key={category.id}
               initial={{ opacity: 0, y: 20 }}
@@ -78,9 +120,11 @@ const CategoriesGrid: React.FC = () => {
         {process.env.NODE_ENV === 'development' && (
           <div className="mt-8 p-4 bg-gray-100 rounded-lg">
             <h3 className="font-semibold mb-2">Debug Info:</h3>
-            <p>Active Categories: {activeCategories.length}</p>
-            <ul className="text-sm">
-              {activeCategories.map(cat => (
+            <p>Database Categories: {activeCategories.length}</p>
+            <p>Showing Categories: {categoriesToShow.length}</p>
+            <p>Loading: {loading.toString()}</p>
+            <ul className="text-sm mt-2">
+              {categoriesToShow.map(cat => (
                 <li key={cat.id}>
                   {cat.name} (key: {cat.key}) - Order: {cat.order}
                 </li>
