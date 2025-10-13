@@ -73,6 +73,21 @@ const CategoriesGrid: React.FC = () => {
             </motion.div>
           ))}
         </div>
+        
+        {/* Debug info - remove in production */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-8 p-4 bg-gray-100 rounded-lg">
+            <h3 className="font-semibold mb-2">Debug Info:</h3>
+            <p>Active Categories: {activeCategories.length}</p>
+            <ul className="text-sm">
+              {activeCategories.map(cat => (
+                <li key={cat.id}>
+                  {cat.name} (key: {cat.key}) - Order: {cat.order}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </section>
   );

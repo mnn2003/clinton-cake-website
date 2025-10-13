@@ -22,6 +22,7 @@ const CategoryPage: React.FC = () => {
         return;
       }
 
+      console.log('Fetching cakes for category:', category);
       setLoading(true);
       setError(null);
       
@@ -29,22 +30,25 @@ const CategoryPage: React.FC = () => {
         let fetchedCakes: Cake[] = [];
         
         if (category === 'all') {
-          // Fetch all cakes
+          console.log('Fetching all cakes...');
           fetchedCakes = await getCakes();
         } else {
           // Find the category in our active categories
           const categoryData = getCategoryByKey(category);
+          console.log('Category data found:', categoryData);
           
-          if (!categoryData) {
-            // If category not found, still try to fetch cakes with the category key
-            console.warn(`Category "${category}" not found in active categories, trying direct fetch`);
-            fetchedCakes = await getCakesByCategory(category as any);
-          } else {
+          if (categoryData) {
             // Use the category key to fetch cakes
-            fetchedCakes = await getCakesByCategory(categoryData.key as any);
+            console.log('Fetching cakes for category key:', categoryData.key);
+            fetchedCakes = await getCakesByCategory(categoryData.key);
+          } else {
+            // Try direct fetch with the category parameter
+            console.log('Category not found in active categories, trying direct fetch with:', category);
+            fetchedCakes = await getCakesByCategory(category);
           }
         }
         
+        console.log('Fetched cakes:', fetchedCakes.length);
         setCakes(fetchedCakes);
       } catch (error) {
         console.error('Error fetching cakes:', error);
@@ -63,13 +67,25 @@ const CategoryPage: React.FC = () => {
     }
     
     const categoryData = getCategoryByKey(category || '');
-    return categoryData?.name || category?.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown Category';
+    if (categoryData) {
+      return categoryData.name;
+    }
+    
+    // Fallback: format the category parameter
+    return category?.split('-').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ') || 'Unknown Category';
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <LoadingSpinner size="lg" className="py-32" />
+        <div className="container mx-auto px-4 py-12">
+          <div className="text-center">
+            <LoadingSpinner size="lg" />
+            <p className="text-gray-600 mt-4">Loading {getCategoryName()}...</p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -79,6 +95,9 @@ const CategoryPage: React.FC = () => {
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-4">
           <div className="text-center py-16">
+            <div className="w-24 h-24 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
+              <span className="text-4xl">⚠️</span>
+            </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-4">Error Loading Cakes</h1>
             <p className="text-gray-600 mb-8">{error}</p>
             <button 
@@ -122,7 +141,7 @@ const CategoryPage: React.FC = () => {
             <h3 className="text-xl font-semibold text-gray-800 mb-2">No Cakes Found</h3>
             <p className="text-gray-500 mb-8">
               {category === 'all' 
-                ? 'No cakes are currently available.' 
+                ? 'No cakes are currently available. Please check back later.' 
                 : `No cakes found in the ${getCategoryName()} category.`}
             </p>
             <a 

@@ -32,8 +32,11 @@ export const useCategories = () => {
   };
 
   const getCategoryByKey = (key: string): Category | undefined => {
-    const category = state.categories.find(category => category.key === key && category.active);
+    const category = state.categories.find(category => 
+      category.key === key && category.active
+    );
     console.log('Looking for category with key:', key, 'Found:', category);
+    console.log('Available categories:', state.categories.map(c => ({ key: c.key, name: c.name, active: c.active })));
     return category;
   };
 

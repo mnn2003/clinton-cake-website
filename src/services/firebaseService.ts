@@ -35,18 +35,30 @@ export const getCakes = async (): Promise<Cake[]> => {
 
 export const getCakesByCategory = async (category: CakeCategory): Promise<Cake[]> => {
   console.log('Fetching cakes for category:', category);
+  
+  if (!category) {
+    console.log('No category provided, returning empty array');
+    return [];
+  }
+  
   const q = query(
     collection(db, 'cakes'),
     where('category', '==', category)
   );
-  const querySnapshot = await getDocs(q);
-  const cakes = querySnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data(),
-    createdAt: doc.data().createdAt?.toDate() || new Date(),
-  })) as Cake[];
-  console.log('Found cakes:', cakes.length);
-  return cakes;
+  
+  try {
+    const querySnapshot = await getDocs(q);
+    const cakes = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+    })) as Cake[];
+    console.log('Found cakes for category', category, ':', cakes.length);
+    return cakes;
+  } catch (error) {
+    console.error('Error fetching cakes by category:', error);
+    throw error;
+  }
 };
 
 export const getCake = async (id: string): Promise<Cake | null> => {

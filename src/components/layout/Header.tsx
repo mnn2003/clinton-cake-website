@@ -57,6 +57,12 @@ const Header: React.FC = () => {
                     {category.name}
                   </Link>
                 ))}
+                <Link
+                  to="/category/all"
+                  className="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 border-t first:rounded-t-lg last:rounded-b-lg font-semibold"
+                >
+                  View All Cakes
+                </Link>
               </div>
             </div>
 
@@ -153,6 +159,13 @@ const Header: React.FC = () => {
                     {category.name}
                   </Link>
                 ))}
+                <Link
+                  to="/category/all"
+                  className="block pl-4 text-gray-700 hover:text-orange-600 font-semibold border-t pt-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  View All Cakes
+                </Link>
               </div>
 
               <Link
