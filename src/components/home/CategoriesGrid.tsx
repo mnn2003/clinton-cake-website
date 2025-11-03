@@ -86,6 +86,9 @@ const CategoriesGrid: React.FC = () => {
               <Link
                 to={`/category/${category.key}`}
                 className="block group"
+                onClick={(e) => {
+                  console.log('Category clicked:', category.key);
+                }}
               >
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-2">
                   <div className="relative h-64 overflow-hidden">
