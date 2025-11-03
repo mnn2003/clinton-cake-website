@@ -18,6 +18,9 @@ import AboutPage from './pages/AboutPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
+import UserLogin from './pages/auth/UserLogin';
+import UserProfile from './pages/UserProfile';
+import UserOrders from './pages/UserOrders';
 
 // Admin Pages
 import AdminLogin from './pages/admin/AdminLogin';
@@ -26,6 +29,7 @@ import CakeManagement from './pages/admin/CakeManagement';
 import CategoryManagement from './pages/admin/CategoryManagement';
 import SlideshowManagement from './pages/admin/SlideshowManagement';
 import EnquiryManagement from './pages/admin/EnquiryManagement';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
   return (
@@ -54,12 +58,27 @@ function App() {
                 <main className="flex-1">
                   <Routes>
                     <Route path="/" element={<HomePage />} />
+                    <Route path="/login" element={<UserLogin />} />
                     <Route path="/category/:category" element={<CategoryPage />} />
                     <Route path="/cake/:id" element={<CakeDetailPage />} />
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/cart" element={<CartPage />} />
-                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/checkout" element={
+                      <ProtectedRoute>
+                        <CheckoutPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/profile" element={
+                      <ProtectedRoute>
+                        <UserProfile />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/orders" element={
+                      <ProtectedRoute>
+                        <UserOrders />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
                   </Routes>
                 </main>
