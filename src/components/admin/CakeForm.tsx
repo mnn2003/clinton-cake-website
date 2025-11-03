@@ -153,9 +153,6 @@ const CakeForm: React.FC<CakeFormProps> = ({
           {errors.priceRange && (
             <p className="text-red-500 text-sm mt-1">{errors.priceRange.message}</p>
           )}
-          <p className="text-xs text-gray-500 mt-1">
-            Enter price range (e.g., ₹500 - ₹800) or single price (e.g., ₹600). The first number will be used as base price.
-          </p>
         </div>
 
         <div>
