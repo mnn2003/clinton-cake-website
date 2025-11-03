@@ -22,7 +22,6 @@ import { Cake, Enquiry, SlideshowImage, CakeCategory, Category, UserProfile, Ord
 
 // Cake services
 export const getCakes = async (): Promise<Cake[]> => {
-  console.log('Fetching all cakes...');
   try {
     const querySnapshot = await getDocs(collection(db, 'cakes'));
     const cakes = querySnapshot.docs.map(doc => ({
@@ -30,20 +29,15 @@ export const getCakes = async (): Promise<Cake[]> => {
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
     })) as Cake[];
-    console.log('Found total cakes:', cakes.length);
     return cakes;
   } catch (error) {
     console.error('Error fetching all cakes:', error);
-    // Return empty array instead of throwing error
     return [];
   }
 };
 
 export const getCakesByCategory = async (category: CakeCategory): Promise<Cake[]> => {
-  console.log('Fetching cakes for category:', category);
-  
   if (!category) {
-    console.log('No category provided, returning empty array');
     return [];
   }
   
@@ -59,11 +53,9 @@ export const getCakesByCategory = async (category: CakeCategory): Promise<Cake[]
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
     })) as Cake[];
-    console.log('Found cakes for category', category, ':', cakes.length);
     return cakes;
   } catch (error) {
     console.error('Error fetching cakes by category:', error);
-    // Return empty array instead of throwing error
     return [];
   }
 };

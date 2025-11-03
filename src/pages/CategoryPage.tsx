@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getCakesByCategory, getCakes } from '../services/firebaseService';
 import { Cake } from '../types';
+import { useCategories } from '../hooks/useCategories';
 import CakeCard from '../components/common/CakeCard';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
@@ -11,78 +12,11 @@ const CategoryPage: React.FC = () => {
   const [cakes, setCakes] = useState<Cake[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Sample cakes data for immediate display
-  const sampleCakes: Cake[] = [
-    {
-      id: 'sample-chocolate-1',
-      name: 'Rich Chocolate Fudge Cake',
-      description: 'Decadent chocolate cake with layers of rich fudge and chocolate ganache.',
-      category: 'chocolate',
-      priceRange: '₹800 - ₹1200',
-      images: ['https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg'],
-      featured: true,
-      createdAt: new Date()
-    },
-    {
-      id: 'sample-chocolate-2',
-      name: 'Dark Chocolate Truffle Cake',
-      description: 'Intense dark chocolate cake with truffle filling and cocoa dusting.',
-      category: 'chocolate',
-      priceRange: '₹900 - ₹1400',
-      images: ['https://images.pexels.com/photos/1055272/pexels-photo-1055272.jpeg'],
-      featured: false,
-      createdAt: new Date()
-    },
-    {
-      id: 'sample-vanilla-1',
-      name: 'Classic Vanilla Bean Cake',
-      description: 'Light and fluffy vanilla sponge cake with vanilla buttercream frosting.',
-      category: 'vanilla',
-      priceRange: '₹700 - ₹1000',
-      images: ['https://images.pexels.com/photos/1721932/pexels-photo-1721932.jpeg'],
-      featured: true,
-      createdAt: new Date()
-    },
-    {
-      id: 'sample-fruit-1',
-      name: 'Fresh Strawberry Delight',
-      description: 'Moist vanilla cake layered with fresh strawberries and whipped cream.',
-      category: 'fruit',
-      priceRange: '₹900 - ₹1300',
-      images: ['https://images.pexels.com/photos/1126359/pexels-photo-1126359.jpeg'],
-      featured: true,
-      createdAt: new Date()
-    },
-    {
-      id: 'sample-custom-1',
-      name: 'Custom Birthday Celebration',
-      description: 'Personalized birthday cake with custom decorations and your choice of flavors.',
-      category: 'custom',
-      priceRange: '₹1200 - ₹2000',
-      images: ['https://images.pexels.com/photos/1702373/pexels-photo-1702373.jpeg'],
-      featured: false,
-      createdAt: new Date()
-    }
-  ];
-
-  // Category display names
-  const categoryNames: Record<string, string> = {
-    'all': 'All Cakes',
-    'chocolate': 'Chocolate Cakes',
-    'vanilla': 'Vanilla Cakes', 
-    'fruit': 'Fruit Cakes',
-    'custom': 'Custom Cakes',
-    'red-velvet': 'Red Velvet Cakes',
-    'cheesecakes': 'Cheesecakes'
-  };
+  const { getCategoryByKey } = useCategories();
 
   useEffect(() => {
     const fetchCakes = async () => {
-      console.log('CategoryPage: Starting fetch for category:', category);
-      
       if (!category) {
-        console.log('CategoryPage: No category provided');
         setError('No category specified');
         setLoading(false);
         return;
@@ -95,20 +29,15 @@ const CategoryPage: React.FC = () => {
         let fetchedCakes: Cake[] = [];
         
         if (category === 'all') {
-          console.log('CategoryPage: Fetching all cakes');
-          // For "all" category, show all sample cakes
-          fetchedCakes = sampleCakes;
+          fetchedCakes = await getCakes();
         } else {
-          console.log('CategoryPage: Fetching cakes for specific category:', category);
-          // For specific category, filter sample cakes
-          fetchedCakes = sampleCakes.filter(cake => cake.category === category);
+          fetchedCakes = await getCakesByCategory(category);
         }
         
-        console.log('CategoryPage: Found cakes:', fetchedCakes.length);
         setCakes(fetchedCakes);
         
       } catch (error) {
-        console.error('CategoryPage: Error fetching cakes:', error);
+        console.error('Error fetching cakes:', error);
         setError('Failed to load cakes');
       } finally {
         setLoading(false);
@@ -116,10 +45,12 @@ const CategoryPage: React.FC = () => {
     };
 
     fetchCakes();
-  }, [category]); // Only depend on category
+  }, [category]);
 
   const getCategoryName = () => {
-    return categoryNames[category || ''] || 'Unknown Category';
+    if (category === 'all') return 'All Cakes';
+    const categoryData = getCategoryByKey(category || '');
+    return categoryData?.name || 'Unknown Category';
   };
 
   if (loading) {
@@ -215,18 +146,6 @@ const CategoryPage: React.FC = () => {
                 <CakeCard cake={cake} />
               </motion.div>
             ))}
-          </div>
-        )}
-
-        {/* Debug info - only in development */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-8 p-4 bg-gray-100 rounded-lg">
-            <h3 className="font-semibold mb-2">Debug Info:</h3>
-            <p>Category Parameter: {category}</p>
-            <p>Category Name: {getCategoryName()}</p>
-            <p>Cakes Found: {cakes.length}</p>
-            <p>Loading: {loading.toString()}</p>
-            <p>Error: {error || 'None'}</p>
           </div>
         )}
       </div>
