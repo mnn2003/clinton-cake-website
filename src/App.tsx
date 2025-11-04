@@ -28,6 +28,7 @@ import Dashboard from './pages/admin/Dashboard';
 import CakeManagement from './pages/admin/CakeManagement';
 import CategoryManagement from './pages/admin/CategoryManagement';
 import SlideshowManagement from './pages/admin/SlideshowManagement';
+import OrderManagement from './pages/admin/OrderManagement';
 import EnquiryManagement from './pages/admin/EnquiryManagement';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
@@ -48,6 +49,7 @@ function App() {
               <Route path="cakes" element={<CakeManagement />} />
               <Route path="categories" element={<CategoryManagement />} />
               <Route path="slideshow" element={<SlideshowManagement />} />
+              <Route path="orders" element={<OrderManagement />} />
               <Route path="enquiries" element={<EnquiryManagement />} />
             </Route>
 

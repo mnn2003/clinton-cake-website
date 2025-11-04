@@ -235,4 +235,4 @@ export const addOrder = async (order: Omit<Order, 'id'>): Promise<string> => {
 
 export const updateOrder = async (id: string, order: Partial<Order>): Promise<void> => {
   await updateDoc(doc(db, 'orders', id), order);
-}
+};

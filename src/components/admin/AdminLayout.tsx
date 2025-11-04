@@ -6,6 +6,7 @@ import {
   FiLayers, 
   FiImage, 
   FiMail, 
+  FiShoppingBag,
   FiLogOut,
   FiMenu,
   FiX
@@ -22,6 +23,7 @@ const AdminLayout: React.FC = () => {
     { name: 'Manage Cakes', href: '/admin/cakes', icon: FiLayers },
     { name: 'Categories', href: '/admin/categories', icon: FiLayers },
     { name: 'Slideshow', href: '/admin/slideshow', icon: FiImage },
+    { name: 'Orders', href: '/admin/orders', icon: FiShoppingBag },
     { name: 'Enquiries', href: '/admin/enquiries', icon: FiMail },
   ];
 
