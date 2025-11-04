@@ -187,14 +187,14 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
 };
 
 export const createUserProfile = async (userId: string, profile: Omit<UserProfile, 'id'>): Promise<void> => {
-  await updateDoc(doc(db, 'userProfiles', userId), {
+  await setDoc(doc(db, 'userProfiles', userId), {
     ...profile,
     createdAt: new Date(),
-  });
+  }, { merge: true });
 };
 
 export const updateUserProfile = async (userId: string, profile: Partial<UserProfile>): Promise<void> => {
-  await updateDoc(doc(db, 'userProfiles', userId), profile);
+  await setDoc(doc(db, 'userProfiles', userId), profile, { merge: true });
 };
 
 // Order services
