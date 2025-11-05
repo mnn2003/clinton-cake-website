@@ -32,7 +32,7 @@ const AdminLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
@@ -44,11 +44,11 @@ const AdminLayout: React.FC = () => {
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 xl:w-72 bg-white shadow-lg transform ${
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 lg:flex lg:flex-col`}>
-        <div className="flex items-center justify-between h-16 px-4 lg:px-6 xl:px-8 border-b">
-          <span className="text-lg lg:text-xl xl:text-2xl font-bold text-orange-600">Admin Panel</span>
+      } transition-transform duration-300 ease-in-out lg:translate-x-0 flex flex-col`}>
+        <div className="flex items-center justify-between h-16 px-6 border-b">
+          <span className="text-xl font-bold text-orange-600">Admin Panel</span>
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden"
@@ -66,57 +66,57 @@ const AdminLayout: React.FC = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`flex items-center px-4 lg:px-6 xl:px-8 py-3 lg:py-4 text-sm lg:text-base font-medium transition-colors ${
+                className={`flex items-center px-6 py-4 text-base font-medium transition-colors ${
                   isActive
                     ? 'bg-orange-50 text-orange-600 border-r-2 border-orange-600'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
                 onClick={() => setSidebarOpen(false)}
               >
-                <Icon className="mr-2 lg:mr-3 xl:mr-4" size={18} />
+                <Icon className="mr-4" size={18} />
                 {item.name}
               </Link>
             );
           })}
         </nav>
 
-        <div className="mt-auto w-full p-4 lg:p-6 xl:p-8 border-t">
+        <div className="mt-auto w-full p-6 border-t">
           <div className="flex items-center mb-4">
-            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-orange-100 rounded-full flex items-center justify-center">
-              <span className="text-orange-600 font-semibold text-sm lg:text-base">
+            <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+              <span className="text-orange-600 font-semibold">
                 {user?.email?.charAt(0).toUpperCase()}
               </span>
             </div>
             <div className="ml-3">
-              <p className="text-sm lg:text-base font-medium text-gray-900">Admin</p>
-              <p className="text-xs lg:text-sm text-gray-500 truncate max-w-[120px] lg:max-w-[180px]">{user?.email}</p>
+              <p className="text-base font-medium text-gray-900">Admin</p>
+              <p className="text-sm text-gray-500 truncate max-w-[180px]">{user?.email}</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-3 py-2 lg:py-3 text-sm lg:text-base text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex items-center w-full px-3 py-3 text-base text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <FiLogOut className="mr-2 lg:mr-3" size={16} />
+            <FiLogOut className="mr-3" size={16} />
             Sign out
           </button>
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="lg:ml-64 xl:ml-72">
-        {/* Top bar */}
-        <div className="bg-white shadow-sm border-b h-14 flex items-center justify-between px-4 lg:px-6 xl:px-8">
+      {/* Main content area */}
+      <div className="flex-1 lg:ml-64">
+        {/* Top bar for mobile */}
+        <div className="lg:hidden bg-white shadow-sm border-b h-16 flex items-center px-4">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden"
+            className="text-gray-600"
           >
             <FiMenu size={24} />
           </button>
-          <div className="flex-1" />
+          <span className="ml-4 text-lg font-semibold text-gray-800">Admin Panel</span>
         </div>
 
         {/* Page content */}
-        <main className="p-4 lg:p-6">
+        <main className="p-6">
           <Outlet />
         </main>
       </div>
