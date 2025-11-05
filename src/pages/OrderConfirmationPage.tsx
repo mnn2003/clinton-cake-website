@@ -71,10 +71,14 @@ const OrderConfirmationPage: React.FC = () => {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <FiCheckCircle className="text-green-600" size={40} />
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Order Confirmed!</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">🎉 Order Placed Successfully!</h1>
             <p className="text-gray-600">
-              Thank you for your order. We'll start preparing your delicious cakes right away.
+              Thank you for choosing Sweet Delights! Your order has been confirmed and we'll start preparing your delicious cakes right away.
             </p>
+            <div className="mt-4 p-4 bg-green-50 rounded-lg">
+              <p className="text-green-800 font-semibold">✅ Your cart has been cleared</p>
+              <p className="text-green-700 text-sm">You can continue shopping for more delicious cakes!</p>
+            </div>
           </motion.div>
 
           {/* Order Details */}

@@ -8,6 +8,7 @@ import { useAuth } from '../hooks/useAuth';
 import { addOrder, getUserProfile } from '../services/firebaseService';
 import { Order, UserProfile } from '../types';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import SuccessMessage from '../components/ui/SuccessMessage';
 
 interface CheckoutForm {
   name: string;
@@ -26,6 +27,7 @@ const CheckoutPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const {
     register,
@@ -90,11 +92,20 @@ const CheckoutPage: React.FC = () => {
       };
 
       const orderId = await addOrder(order);
+      
+      // Show success message
+      setShowSuccess(true);
+      
+      // Clear the cart
       clearCart();
-      navigate(`/order-confirmation/${orderId}`);
+      
+      // Redirect to order confirmation after showing success message
+      setTimeout(() => {
+        navigate(`/order-confirmation/${orderId}`);
+      }, 2000);
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('Failed to place order. Please try again.');
+      alert('❌ Failed to place order. Please try again or contact support if the problem persists.');
     } finally {
       setIsSubmitting(false);
     }
@@ -384,6 +395,15 @@ const CheckoutPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Success Message */}
+      <SuccessMessage
+        isVisible={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        title="Order Placed Successfully! 🎉"
+        message="Your order has been confirmed and your cart has been cleared. Redirecting to order details..."
+        autoClose={false}
+      />
     </div>
   );
 };

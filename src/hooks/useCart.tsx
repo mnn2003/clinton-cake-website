@@ -97,6 +97,11 @@ export const useCart = () => {
     dispatch({ type: 'CLEAR_CART' });
     if (!user) {
       localStorage.removeItem('guestCart');
+    } else {
+      // Also clear cart from Firebase for logged-in users
+      updateUserProfile(user.uid, { cart: [] }).catch(error => {
+        console.error('Error clearing cart from profile:', error);
+      });
     }
   };
 
