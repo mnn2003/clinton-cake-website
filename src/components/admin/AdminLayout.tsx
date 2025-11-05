@@ -105,20 +105,18 @@ const AdminLayout: React.FC = () => {
       {/* Main content */}
       <div className="lg:ml-64 xl:ml-72">
         {/* Top bar */}
-        <div className="bg-white shadow-sm border-b h-16 flex items-center justify-between px-4 lg:px-6 xl:px-8">
+        <div className="bg-white shadow-sm border-b h-14 flex items-center justify-between px-4 lg:px-6 xl:px-8">
           <button
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden"
           >
             <FiMenu size={24} />
           </button>
-          <h1 className="text-base lg:text-lg xl:text-xl font-semibold text-gray-900 truncate">
-            Sweet Delights Admin
-          </h1>
+          <div className="flex-1" />
         </div>
 
         {/* Page content */}
-        <main className="p-4 lg:p-6 xl:p-8">
+        <main className="p-4 lg:p-6">
           <Outlet />
         </main>
       </div>
