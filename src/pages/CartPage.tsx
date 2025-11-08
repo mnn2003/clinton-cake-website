@@ -8,8 +8,41 @@ import { useAuth } from '../hooks/useAuth';
 const CartPage: React.FC = () => {
   const { cart, updateCartItem, removeFromCart, clearCart, getCartTotal } = useCart();
   const { user } = useAuth();
+  const [isProcessingOrder, setIsProcessingOrder] = React.useState(false);
+
+  // Check if we're in the middle of order processing
+  React.useEffect(() => {
+    const orderProcessing = sessionStorage.getItem('orderProcessing');
+    if (orderProcessing === 'true') {
+      setIsProcessingOrder(true);
+    }
+  }, []);
 
   if (cart.length === 0) {
+    // Show processing message if order is being processed
+    if (isProcessingOrder) {
+      return (
+        <div className="min-h-screen bg-gray-50 py-12">
+          <div className="container mx-auto px-4">
+            <div className="text-center py-16">
+              <div className="w-20 h-20 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin mx-auto mb-6"></div>
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">Processing Your Order</h2>
+              <p className="text-gray-600 mb-4">
+                Your order is being processed. Please don't close this window.
+              </p>
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 max-w-md mx-auto">
+                <p className="text-orange-800 text-sm">
+                  🔄 Creating your order...<br/>
+                  📧 Preparing confirmation email...<br/>
+                  ✅ Almost done!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-4">

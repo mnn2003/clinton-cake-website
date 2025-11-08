@@ -94,6 +94,9 @@ export const useCart = () => {
   };
 
   const clearCart = () => {
+    // Set processing flag to prevent empty cart message
+    sessionStorage.setItem('orderProcessing', 'true');
+    
     dispatch({ type: 'CLEAR_CART' });
     if (!user) {
       localStorage.removeItem('guestCart');
@@ -103,6 +106,11 @@ export const useCart = () => {
         console.error('Error clearing cart from profile:', error);
       });
     }
+    
+    // Clear processing flag after a short delay
+    setTimeout(() => {
+      sessionStorage.removeItem('orderProcessing');
+    }, 3000);
   };
 
   const getCartTotal = () => {

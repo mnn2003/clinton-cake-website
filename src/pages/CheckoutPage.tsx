@@ -28,6 +28,7 @@ const CheckoutPage: React.FC = () => {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [orderProcessing, setOrderProcessing] = useState(false);
 
   const {
     register,
@@ -73,6 +74,7 @@ const CheckoutPage: React.FC = () => {
 
   const onSubmit = async (data: CheckoutForm) => {
     setIsSubmitting(true);
+    setOrderProcessing(true);
     try {
       const order: Omit<Order, 'id'> = {
         userId: user?.uid,
@@ -101,17 +103,32 @@ const CheckoutPage: React.FC = () => {
       
       // Redirect to order confirmation after showing success message
       setTimeout(() => {
+        setOrderProcessing(false);
         navigate(`/order-confirmation/${orderId}`);
       }, 2000);
     } catch (error) {
       console.error('Error placing order:', error);
       alert('❌ Failed to place order. Please try again or contact support if the problem persists.');
+      setOrderProcessing(false);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   if (cart.length === 0) {
+    // Don't show empty cart message if order is being processed
+    if (orderProcessing) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Processing Your Order...</h2>
+            <p className="text-gray-600">Please wait while we confirm your order</p>
+          </div>
+        </div>
+      );
+    }
+    
     navigate('/cart');
     return null;
   }
