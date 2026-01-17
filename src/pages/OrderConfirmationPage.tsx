@@ -13,9 +13,6 @@ const OrderConfirmationPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Clear order processing flag when confirmation page loads
-    sessionStorage.removeItem('orderProcessing');
-    
     const fetchOrder = async () => {
       if (!orderId) return;
       
