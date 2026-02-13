@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { FiUpload, FiX, FiSave } from 'react-icons/fi';
-import { Cake, CakeCategory } from '../../types';
+import { Cake, CakeCategory, CakeSize } from '../../types';
 import { useCategories } from '../../hooks/useCategories';
 import { uploadImage, deleteImage } from '../../services/firebaseService';
 
@@ -17,7 +17,7 @@ interface FormData {
   name: string;
   description: string;
   category: CakeCategory;
-  priceRange: string;
+  priceRange?: string;
   featured: boolean;
 }
 
@@ -29,6 +29,8 @@ const CakeForm: React.FC<CakeFormProps> = ({
 }) => {
   const [images, setImages] = useState<string[]>(cake?.images || []);
   const [uploading, setUploading] = useState(false);
+  const [sizes, setSizes] = useState<CakeSize[]>(cake?.sizes || []);
+  const [useSizePricing, setUseSizePricing] = useState(!!cake?.sizes?.length);
   const { getCategoriesAsRecord } = useCategories();
 
   const {
@@ -40,9 +42,10 @@ const CakeForm: React.FC<CakeFormProps> = ({
       name: cake.name,
       description: cake.description,
       category: cake.category,
-      priceRange: cake.priceRange,
+      priceRange: cake.priceRange || '',
       featured: cake.featured
     } : {
+      priceRange: '',
       featured: false
     }
   });
@@ -79,11 +82,38 @@ const CakeForm: React.FC<CakeFormProps> = ({
   };
 
   const onFormSubmit = async (data: FormData) => {
+    if (useSizePricing && sizes.length === 0) {
+      alert('Please add at least one size option');
+      return;
+    }
+    
+    if (!useSizePricing && !data.priceRange) {
+      alert('Please enter a price range');
+      return;
+    }
+
     await onSubmit({
       ...data,
       images,
+      sizes: useSizePricing ? sizes : undefined,
+      priceRange: useSizePricing ? undefined : data.priceRange,
       createdAt: cake?.createdAt || new Date()
     });
+  };
+
+  const addSize = () => {
+    setSizes([...sizes, { name: '', price: 0, servings: '' }]);
+  };
+
+  const updateSize = (index: number, field: keyof CakeSize, value: string | number) => {
+    const updatedSizes = sizes.map((size, i) => 
+      i === index ? { ...size, [field]: value } : size
+    );
+    setSizes(updatedSizes);
+  };
+
+  const removeSize = (index: number) => {
+    setSizes(sizes.filter((_, i) => i !== index));
   };
 
   return (
@@ -140,18 +170,120 @@ const CakeForm: React.FC<CakeFormProps> = ({
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Price Range *
-          </label>
-          <input
-            type="text"
-            {...register('priceRange', { required: 'Price range is required' })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            placeholder="e.g., ₹500 - ₹800 or ₹600"
-          />
-          {errors.priceRange && (
-            <p className="text-red-500 text-sm mt-1">{errors.priceRange.message}</p>
+        {/* Pricing Type Selection */}
+        <div className="border border-gray-200 rounded-lg p-4">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Pricing Options</h3>
+          
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <input
+                type="radio"
+                id="simple-pricing"
+                checked={!useSizePricing}
+                onChange={() => setUseSizePricing(false)}
+                className="w-4 h-4 text-orange-600 border-gray-300 focus:ring-orange-500"
+              />
+              <label htmlFor="simple-pricing" className="ml-2 text-sm font-medium text-gray-700">
+                Simple Price Range (e.g., ₹500 - ₹800)
+              </label>
+            </div>
+            
+            <div className="flex items-center">
+              <input
+                type="radio"
+                id="size-pricing"
+                checked={useSizePricing}
+                onChange={() => setUseSizePricing(true)}
+                className="w-4 h-4 text-orange-600 border-gray-300 focus:ring-orange-500"
+              />
+              <label htmlFor="size-pricing" className="ml-2 text-sm font-medium text-gray-700">
+                Size-based Pricing (Different prices for different sizes)
+              </label>
+            </div>
+          </div>
+          
+          {!useSizePricing ? (
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Price Range *
+              </label>
+              <input
+                type="text"
+                {...register('priceRange', { required: !useSizePricing ? 'Price range is required' : false })}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                placeholder="e.g., ₹500 - ₹800 or ₹600"
+              />
+              {errors.priceRange && !useSizePricing && (
+                <p className="text-red-500 text-sm mt-1">{errors.priceRange.message}</p>
+              )}
+            </div>
+          ) : (
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-medium text-gray-700">
+                  Size Options *
+                </label>
+                <button
+                  type="button"
+                  onClick={addSize}
+                  className="bg-orange-600 text-white px-3 py-1 rounded text-sm hover:bg-orange-700 transition-colors"
+                >
+                  Add Size
+                </button>
+              </div>
+              
+              {sizes.length === 0 ? (
+                <div className="text-center py-4 border-2 border-dashed border-gray-300 rounded-lg">
+                  <p className="text-gray-500 text-sm">No sizes added yet. Click "Add Size" to get started.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {sizes.map((size, index) => (
+                    <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 border border-gray-200 rounded-lg">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Size Name</label>
+                        <input
+                          type="text"
+                          value={size.name}
+                          onChange={(e) => updateSize(index, 'name', e.target.value)}
+                          placeholder="e.g., Small, Medium, Large"
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Price (₹)</label>
+                        <input
+                          type="number"
+                          value={size.price || ''}
+                          onChange={(e) => updateSize(index, 'price', parseFloat(e.target.value) || 0)}
+                          placeholder="500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Servings (Optional)</label>
+                        <input
+                          type="text"
+                          value={size.servings || ''}
+                          onChange={(e) => updateSize(index, 'servings', e.target.value)}
+                          placeholder="6-8 people"
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div className="flex items-end">
+                        <button
+                          type="button"
+                          onClick={() => removeSize(index)}
+                          className="w-full bg-red-500 text-white px-3 py-2 rounded text-sm hover:bg-red-600 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </div>
 

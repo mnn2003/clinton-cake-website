@@ -15,31 +15,46 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake }) => {
   const { addToCart } = useCart();
   const category = getCategoryByKey(cake.category);
 
-  // Extract price from priceRange with better logic
-  const extractPrice = (priceRange: string): number => {
-    // Remove currency symbols and extract numbers
-    const numbers = priceRange.match(/\d+/g);
-    if (numbers && numbers.length > 0) {
-      // If there's a range (e.g., "₹500 - ₹800"), take the first (minimum) price
-      return parseInt(numbers[0]);
+  // Get price display and minimum price for cart
+  const getPriceInfo = () => {
+    if (cake.sizes && cake.sizes.length > 0) {
+      const minPrice = Math.min(...cake.sizes.map(s => s.price));
+      const maxPrice = Math.max(...cake.sizes.map(s => s.price));
+      return {
+        display: minPrice === maxPrice ? `₹${minPrice}` : `₹${minPrice} - ₹${maxPrice}`,
+        minPrice: minPrice
+      };
+    } else if (cake.priceRange) {
+      // Extract price from priceRange for backward compatibility
+      const numbers = cake.priceRange.match(/\d+/g);
+      const price = numbers && numbers.length > 0 ? parseInt(numbers[0]) : 500;
+      return {
+        display: cake.priceRange,
+        minPrice: price
+      };
     }
-    // Fallback price
-    return 500;
+    return {
+      display: 'Price on request',
+      minPrice: 500
+    };
   };
+
+  const priceInfo = getPriceInfo();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    const price = extractPrice(cake.priceRange);
+    // Use the first available size or default
+    const defaultSize = cake.sizes && cake.sizes.length > 0 ? cake.sizes[0] : { name: 'Medium', price: priceInfo.minPrice };
     
     addToCart({
       cakeId: cake.id,
       cakeName: cake.name,
       cakeImage: cake.images[0] || 'https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg',
-      price,
+      price: defaultSize.price,
       quantity: 1,
-      size: 'Medium'
+      size: defaultSize.name
     });
     
     // Show success feedback
@@ -82,7 +97,7 @@ const CakeCard: React.FC<CakeCardProps> = ({ cake }) => {
               {category?.name || 'Unknown Category'}
             </span>
             <span className="text-sm text-gray-500">
-              {cake.priceRange}
+              {priceInfo.display}
             </span>
           </div>
           

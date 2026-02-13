@@ -3,10 +3,17 @@ export interface Cake {
   name: string;
   description: string;
   category: CakeCategory;
-  priceRange: string;
+  priceRange?: string; // Keep for backward compatibility
+  sizes?: CakeSize[];
   images: string[];
   featured: boolean;
   createdAt: Date;
+}
+
+export interface CakeSize {
+  name: string;
+  price: number;
+  servings?: string;
 }
 
 export interface Enquiry {

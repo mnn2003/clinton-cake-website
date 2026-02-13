@@ -157,7 +157,10 @@ const CakeManagement: React.FC = () => {
                   {getCategoryByKey(cake.category)?.name || 'Unknown'}
                 </span>
                 <span className="text-xs lg:text-sm text-gray-500">
-                  {cake.priceRange}
+                  {cake.sizes ? 
+                    `${cake.sizes.length} size${cake.sizes.length !== 1 ? 's' : ''}` : 
+                    cake.priceRange
+                  }
                 </span>
               </div>
               
