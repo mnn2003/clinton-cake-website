@@ -20,30 +20,41 @@ const CakeDetailPage: React.FC = () => {
   const [showEnquiry, setShowEnquiry] = useState(false);
   const { getCategoryByKey } = useCategories();
   const { addToCart } = useCart();
-  const [selectedSize, setSelectedSize] = useState('Medium');
+  const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
 
-  // Extract base price from priceRange with better logic
-  const extractBasePrice = (priceRange: string): number => {
-    // Remove currency symbols and extract numbers
-    const numbers = priceRange.match(/\d+/g);
-    if (numbers && numbers.length > 0) {
-      // If there's a range (e.g., "₹500 - ₹800"), take the first (minimum) price
-      return parseInt(numbers[0]);
+  // Initialize selected size when cake loads
+  useEffect(() => {
+    if (cake && !selectedSize) {
+      if (cake.sizes && cake.sizes.length > 0) {
+        setSelectedSize(cake.sizes[0].name);
+      } else {
+        setSelectedSize('Medium'); // Default for backward compatibility
+      }
     }
-    // Fallback price
+  }, [cake, selectedSize]);
+
+  // Get current price based on selected size
+  const getCurrentPrice = (): number => {
+    if (cake?.sizes && cake.sizes.length > 0) {
+      const selectedSizeObj = cake.sizes.find(s => s.name === selectedSize);
+      return selectedSizeObj?.price || cake.sizes[0].price;
+    } else if (cake?.priceRange) {
+      // Backward compatibility - extract price from range
+      const numbers = cake.priceRange.match(/\d+/g);
+      return numbers && numbers.length > 0 ? parseInt(numbers[0]) : 500;
+    }
     return 500;
   };
 
-  // Calculate price based on size
-  const calculatePrice = (basePrice: number, size: string): number => {
-    const sizeMultipliers = {
-      'Small': 0.8,
-      'Medium': 1.0,
-      'Large': 1.3,
-      'Extra Large': 1.6
-    };
-    return Math.round(basePrice * (sizeMultipliers[size as keyof typeof sizeMultipliers] || 1.0));
+  // Get price display
+  const getPriceDisplay = (): string => {
+    if (cake?.sizes && cake.sizes.length > 0) {
+      const minPrice = Math.min(...cake.sizes.map(s => s.price));
+      const maxPrice = Math.max(...cake.sizes.map(s => s.price));
+      return minPrice === maxPrice ? `₹${minPrice}` : `₹${minPrice} - ₹${maxPrice}`;
+    }
+    return cake?.priceRange || 'Price on request';
   };
 
   useEffect(() => {
@@ -88,8 +99,7 @@ const CakeDetailPage: React.FC = () => {
   const handleAddToCart = () => {
     if (!cake) return;
     
-    const basePrice = extractBasePrice(cake.priceRange);
-    const price = calculatePrice(basePrice, selectedSize);
+    const price = getCurrentPrice();
     
     addToCart({
       cakeId: cake.id,
@@ -186,7 +196,7 @@ const CakeDetailPage: React.FC = () => {
               </h1>
               <div className="flex items-center space-x-4 mb-6">
                 <span className="text-2xl font-bold text-orange-600">
-                  {cake.priceRange}
+                  {getPriceDisplay()}
                 </span>
                 {cake.featured && (
                   <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-semibold">
@@ -215,34 +225,53 @@ const CakeDetailPage: React.FC = () => {
             </div>
 
             {/* Size Selection */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">Select Size</h3>
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                {['Small', 'Medium', 'Large', 'Extra Large'].map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`p-3 border rounded-lg text-sm font-medium transition-colors ${
-                      selectedSize === size
-                        ? 'border-orange-500 bg-orange-50 text-orange-600'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="font-semibold">{size}</div>
-                      <div className="text-xs text-gray-500">
-                        ₹{cake ? calculatePrice(extractBasePrice(cake.priceRange), size) : 500}
+            {cake.sizes && cake.sizes.length > 0 ? (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">Select Size</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                  {cake.sizes.map((size) => (
+                    <button
+                      key={size.name}
+                      onClick={() => setSelectedSize(size.name)}
+                      className={`p-3 border rounded-lg text-sm font-medium transition-colors ${
+                        selectedSize === size.name
+                          ? 'border-orange-500 bg-orange-50 text-orange-600'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <div className="text-center">
+                        <div className="font-semibold">{size.name}</div>
+                        <div className="text-xs text-gray-500">
+                          ₹{size.price}
+                        </div>
+                        {size.servings && (
+                          <div className="text-xs text-gray-400">
+                            {size.servings}
+                          </div>
+                        )}
                       </div>
+                    </button>
+                  ))}
+                </div>
+                <div className="text-center text-sm text-gray-600">
+                  Selected: <span className="font-semibold text-orange-600">
+                    {selectedSize} - ₹{getCurrentPrice()}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">Size</h3>
+                <div className="p-3 border border-gray-300 rounded-lg bg-gray-50">
+                  <div className="text-center">
+                    <div className="font-semibold">Standard Size</div>
+                    <div className="text-sm text-gray-600">
+                      {cake.priceRange || 'Price on request'}
                     </div>
-                  </button>
-                ))}
+                  </div>
+                </div>
               </div>
-              <div className="text-center text-sm text-gray-600">
-                Selected: <span className="font-semibold text-orange-600">
-                  {selectedSize} - ₹{cake ? calculatePrice(extractBasePrice(cake.priceRange), selectedSize) : 500}
-                </span>
-              </div>
-            </div>
+            )}
 
             {/* Quantity Selection */}
             <div>
