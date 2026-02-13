@@ -92,13 +92,29 @@ const CakeForm: React.FC<CakeFormProps> = ({
       return;
     }
 
-    await onSubmit({
+    // Prepare the cake data, excluding undefined fields
+    const cakeData: any = {
       ...data,
       images,
-      sizes: useSizePricing ? sizes : undefined,
-      priceRange: useSizePricing ? undefined : data.priceRange,
       createdAt: cake?.createdAt || new Date()
-    });
+    };
+
+    // Only include fields that have values to avoid Firebase undefined errors
+    if (useSizePricing && sizes.length > 0) {
+      cakeData.sizes = sizes;
+      // Remove priceRange if it exists (for updating existing cakes)
+      if (cake?.priceRange) {
+        cakeData.priceRange = null; // Use null instead of undefined for Firebase
+      }
+    } else {
+      cakeData.priceRange = data.priceRange;
+      // Remove sizes if it exists (for updating existing cakes)
+      if (cake?.sizes) {
+        cakeData.sizes = null; // Use null instead of undefined for Firebase
+      }
+    }
+
+    await onSubmit(cakeData);
   };
 
   const addSize = () => {

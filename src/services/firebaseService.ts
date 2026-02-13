@@ -74,15 +74,34 @@ export const getCake = async (id: string): Promise<Cake | null> => {
 };
 
 export const addCake = async (cake: Omit<Cake, 'id'>): Promise<string> => {
-  const docRef = await addDoc(collection(db, 'cakes'), {
-    ...cake,
+  // Clean the data to remove undefined values
+  const cleanData: any = {
     createdAt: new Date(),
+  };
+  
+  Object.keys(cake).forEach(key => {
+    const value = (cake as any)[key];
+    if (value !== undefined) {
+      cleanData[key] = value;
+    }
   });
+  
+  const docRef = await addDoc(collection(db, 'cakes'), cleanData);
   return docRef.id;
 };
 
 export const updateCake = async (id: string, cake: Partial<Cake>): Promise<void> => {
-  await updateDoc(doc(db, 'cakes', id), cake);
+  // Clean the data to remove undefined values and handle null values properly
+  const cleanData: any = {};
+  
+  Object.keys(cake).forEach(key => {
+    const value = (cake as any)[key];
+    if (value !== undefined) {
+      cleanData[key] = value;
+    }
+  });
+  
+  await updateDoc(doc(db, 'cakes', id), cleanData);
 };
 
 export const deleteCake = async (id: string): Promise<void> => {
