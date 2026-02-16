@@ -167,6 +167,22 @@ const OrderConfirmationPage: React.FC = () => {
                 <span>Total Amount</span>
                 <span className="text-orange-600">₹{order.totalAmount.toFixed(2)}</span>
               </div>
+              <div className="flex justify-between text-sm pt-2">
+                <span className="text-gray-600">Payment Status</span>
+                <span className={`font-semibold ${
+                  order.paymentStatus === 'completed' ? 'text-green-600' : 
+                  order.paymentStatus === 'failed' ? 'text-red-600' : 'text-yellow-600'
+                }`}>
+                  {order.paymentStatus === 'completed' ? '✅ Paid' : 
+                   order.paymentStatus === 'failed' ? '❌ Failed' : '⏳ Pending'}
+                </span>
+              </div>
+              {order.paymentId && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Payment ID</span>
+                  <span className="font-mono text-xs">{order.paymentId}</span>
+                </div>
+              )}
               <p className="text-sm text-gray-600 mt-1">
                 Payment Method: {order.paymentMethod === 'cash' ? 'Cash on Delivery' : 
                                 order.paymentMethod === 'card' ? 'Credit/Debit Card' : 'Online Payment'}

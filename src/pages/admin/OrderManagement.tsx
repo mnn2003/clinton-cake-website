@@ -329,6 +329,15 @@ const OrderManagement: React.FC = () => {
                         {order.paymentMethod === 'cash' ? 'COD' : 
                          order.paymentMethod === 'card' ? 'Card' : 'Online'}
                       </div>
+                      {order.paymentStatus && (
+                        <div className={`text-xs font-semibold ${
+                          order.paymentStatus === 'completed' ? 'text-green-600' : 
+                          order.paymentStatus === 'failed' ? 'text-red-600' : 'text-yellow-600'
+                        }`}>
+                          {order.paymentStatus === 'completed' ? '✅ Paid' : 
+                           order.paymentStatus === 'failed' ? '❌ Failed' : '⏳ Pending'}
+                        </div>
+                      )}
                     </td>
                     <td className="px-3 lg:px-6 py-4 whitespace-nowrap">
                       <select
@@ -439,6 +448,20 @@ const OrderManagement: React.FC = () => {
                         {selectedOrder.paymentMethod === 'cash' ? 'Cash on Delivery' : 
                          selectedOrder.paymentMethod === 'card' ? 'Credit/Debit Card' : 'Online Payment'}
                       </p>
+                      {selectedOrder.paymentStatus && (
+                        <p className={`text-sm font-semibold ${
+                          selectedOrder.paymentStatus === 'completed' ? 'text-green-600' : 
+                          selectedOrder.paymentStatus === 'failed' ? 'text-red-600' : 'text-yellow-600'
+                        }`}>
+                          Status: {selectedOrder.paymentStatus === 'completed' ? 'Paid' : 
+                                  selectedOrder.paymentStatus === 'failed' ? 'Failed' : 'Pending'}
+                        </p>
+                      )}
+                      {selectedOrder.paymentId && (
+                        <p className="text-xs text-gray-500 font-mono">
+                          Payment ID: {selectedOrder.paymentId}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center">

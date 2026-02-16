@@ -97,4 +97,7 @@ export interface Order {
   deliveryDate?: Date;
   notes?: string;
   paymentMethod: 'cash' | 'card' | 'online';
+  paymentStatus?: 'pending' | 'completed' | 'failed';
+  paymentId?: string;
+  razorpayOrderId?: string;
 }

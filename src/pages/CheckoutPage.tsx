@@ -287,10 +287,12 @@ const CheckoutPage: React.FC = () => {
                         value="online"
                         className="mr-3"
                       />
-                      <FiMapPin className="mr-2 text-purple-600" />
+                      <div className="w-6 h-6 mr-2 bg-blue-600 rounded flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">₹</span>
+                      </div>
                       <div>
-                        <span className="font-medium">Online Payment</span>
-                        <p className="text-sm text-gray-500">UPI, Net Banking, or Digital Wallet</p>
+                        <span className="font-medium">Online Payment (Razorpay)</span>
+                        <p className="text-sm text-gray-500">UPI, Cards, Net Banking, Wallets</p>
                       </div>
                     </label>
                   </div>
